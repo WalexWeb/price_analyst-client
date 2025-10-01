@@ -1,69 +1,66 @@
-# React + TypeScript + Vite
+# Price Analyst
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+Современное веб-приложение для автоматизации обработки заказов и анализа цен на товары.
 
-Currently, two official plugins are available:
+## Основной функционал
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+- 📤 **Загрузка файла с данными товаров и количеством**  
+  Пользователь может загрузить файл с перечнем товаров и их количеством для дальнейшей обработки.
 
-## Expanding the ESLint configuration
+- 📥 **Отправка файла с итоговым заказом**  
+  После анализа и формирования заказа доступна загрузка итогового файла для оформления закупки.
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
+- 📊 **Анализ и вывод наиболее подходящих цен**  
+  Система автоматически анализирует предложения и выводит оптимальные цены на выбранные товары.
 
-```js
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
+- 🛠️ **Панель администратора**  
+  Администратор может добавлять новые данные в базу через удобную панель управления.
 
-      // Remove tseslint.configs.recommended and replace with this
-      tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      tseslint.configs.stylisticTypeChecked,
+## Технологии
 
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
-```
+- ⚛️ **React** + **TypeScript**  
+- ⚡ **Vite** для быстрого старта и сборки  
+- 🎨 **TailwindCSS** для стилизации  
+- 🔗 **Axios** для работы с API  
+- 🧭 **React Router** для навигации  
+- 🎬 **Framer Motion** для анимаций
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
+## Быстрый старт
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
+1. Клонируйте репозиторий:
+   ```bash
+   git clone https://github.com/username/clean_soul-client.git
+   ```
+2. Перейдите в директорию проекта:
+   ```bash
+   cd clean_soul-client
+   ```
+3. Установите зависимости:
+   ```bash
+   bun install
+   ```
 
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
-```
+### Запуск
+- **Режим разработки**:
+  ```bash
+  bun dev
+  ```
+- **Сборка для продакшена**:
+  ```bash
+  bun run build
+  ```
+
+---
+
+### Запуск через Docker
+
+1. Убедитесь, что установлен [Docker](https://www.docker.com/).
+2. Соберите образ:
+   ```bash
+   docker build -t clean_soul-client .
+   ```
+3. Запустите контейнер:
+   ```bash
+   docker run -p 3400:80 clean_soul-client
+   ```
+4. Приложение будет доступно по адресу [http://localhost:3400](http://localhost:3400).
