@@ -6,6 +6,7 @@ import FileIcon from "./components/ui/icons/FileIcon";
 import LockIcon from "./components/ui/icons/LockIcon";
 import SuccessIcon from "./components/ui/icons/SuccessIcon";
 import ErrorIcon from "./components/ui/icons/ErrorIcon";
+import DownloadIcon from "./components/ui/icons/DownloadIcon";
 import { useAtom } from "jotai";
 import { isAdminAtom } from "@/store/store";
 
@@ -30,6 +31,7 @@ function Admin() {
   const [password, setPassword] = useState("");
   const [passwordError, setPasswordError] = useState("");
   const [uploadLoading, setUploadLoading] = useState(false);
+  const [downloadTemplateLoading, setDownloadTemplateLoading] = useState(false);
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [uploadResponse, setUploadResponse] = useState<UploadResponse | null>(
     null,
@@ -59,6 +61,36 @@ function Admin() {
       setIsAdmin(true);
     } else {
       setPasswordError("Неверный пароль");
+    }
+  };
+
+  // Загрузка шаблона таблицы поставщиков
+  const downloadSuppliersTemplate = async () => {
+    setDownloadTemplateLoading(true);
+    try {
+      const response = await axios.get(
+        `${API_URL}/template/download-supplier`,
+        {
+          responseType: "blob",
+        },
+      );
+
+      const url = window.URL.createObjectURL(new Blob([response.data]));
+      const link = document.createElement("a");
+      link.href = url;
+      link.setAttribute("download", "suppliers_template.xlsx");
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+
+      setUploadMessage("Шаблон таблицы поставщиков успешно скачан");
+      setUploadSuccess(true);
+    } catch (error) {
+      console.error("Ошибка загрузки шаблона:", error);
+      setUploadMessage("Ошибка при скачивании шаблона");
+      setUploadSuccess(false);
+    } finally {
+      setDownloadTemplateLoading(false);
     }
   };
 
@@ -234,6 +266,55 @@ function Admin() {
                 Загрузите Excel файл с данными поставщиков для обновления базы
                 данных
               </p>
+            </div>
+
+            {/* Кнопка скачивания шаблона */}
+            <div className="mb-6">
+              <div className="flex items-center justify-between">
+                <div>
+                  <h3 className="text-lg font-semibold text-blue-900">
+                    Шаблон таблицы
+                  </h3>
+                  <p className="text-sm text-blue-600">
+                    Скачайте готовый шаблон для заполнения
+                  </p>
+                </div>
+                <Button
+                  onClick={downloadSuppliersTemplate}
+                  disabled={downloadTemplateLoading}
+                  className="flex items-center gap-2"
+                >
+                  {downloadTemplateLoading ? (
+                    <span className="flex items-center">
+                      <svg
+                        className="mr-2 h-4 w-4 animate-spin"
+                        fill="none"
+                        viewBox="0 0 24 24"
+                      >
+                        <circle
+                          className="opacity-25"
+                          cx="12"
+                          cy="12"
+                          r="10"
+                          stroke="currentColor"
+                          strokeWidth="4"
+                        ></circle>
+                        <path
+                          className="opacity-75"
+                          fill="currentColor"
+                          d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                        ></path>
+                      </svg>
+                      Скачивание...
+                    </span>
+                  ) : (
+                    <span className="flex items-center">
+                      <DownloadIcon />
+                      <span>Скачать шаблон</span>
+                    </span>
+                  )}
+                </Button>
+              </div>
             </div>
 
             <div className="mb-6 rounded-lg border border-blue-200 bg-blue-50 p-4">
