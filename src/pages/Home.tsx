@@ -1,29 +1,27 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import axios from "axios";
-import Button from "../components/ui/Button";
-import Footer from "../components/layout/Footer";
-import DownloadIcon from "../components/ui/icons/DownloadIcon";
-import AnalysisIcon from "../components/ui/icons/AnalysisIcon";
-import FileIcon from "../components/ui/icons/FileIcon";
-import SuccessIcon from "../components/ui/icons/SuccessIcon";
-import ExportIcon from "../components/ui/icons/ExportIcon";
+import Button from "./components/ui/Button";
+import Footer from "./components/layout/Footer";
+import DownloadIcon from "./components/ui/icons/DownloadIcon";
+import AnalysisIcon from "./components/ui/icons/AnalysisIcon";
+import FileIcon from "./components/ui/icons/FileIcon";
+import SuccessIcon from "./components/ui/icons/SuccessIcon";
+import ExportIcon from "./components/ui/icons/ExportIcon";
+import { useAtom } from "jotai";
+import { userAtom } from "@/store/authStore";
+import AuthModal from "./components/auth/AuthModal";
+import Navbar from "./components/layout/Navbar";
 
-// Новые интерфейсы для формата ответа
-interface Supplier {
-  supplierName: string;
-  price: number;
-  quantityTaken: number;
-  supplierQuantity: number;
-}
-
+// Обновленный интерфейс согласно новому формату данных
 interface PriceAnalysisResult {
   barcode: string;
   quantity: number;
-  productName: string;
+  productName: string | null;
+  supplierName: string | null;
+  unitPrice: number | null;
+  totalPrice: number | null;
   requiresManualProcessing: boolean;
-  bestSuppliers: Supplier[];
-  totalPrice: number;
   message: string;
 }
 
@@ -39,6 +37,16 @@ function Home() {
     [],
   );
   const [showResults, setShowResults] = useState(false);
+
+  const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
+  const [user] = useAtom(userAtom);
+
+  // Проверяем авторизацию при загрузке
+  useEffect(() => {
+    if (user?.token) {
+      console.log("Пользователь авторизован:", user);
+    }
+  }, [user]);
 
   // Функция для скачивания шаблона таблицы
   const downloadTemplate = async () => {
@@ -85,6 +93,7 @@ function Home() {
         formData,
         {
           headers: {
+            ...(user?.token && { Authorization: `Bearer ${user.token}` }),
             "Content-Type": "multipart/form-data",
           },
         },
@@ -93,7 +102,6 @@ function Home() {
       setUploadMessage("Анализ цен завершен успешно");
       setUploadSuccess(true);
 
-      console.log(response.data);
       if (response.data) {
         setAnalysisResults(response.data);
         setShowResults(true);
@@ -134,6 +142,7 @@ function Home() {
           responseType: "blob",
           headers: {
             "Content-Type": "application/json",
+            ...(user?.token && { Authorization: `Bearer ${user.token}` }),
           },
         },
       );
@@ -167,38 +176,58 @@ function Home() {
   };
 
   // Форматирование цены
-  const formatPrice = (price: number) => {
+  const formatPrice = (price: number | null) => {
+    if (price === null) return "—";
     return new Intl.NumberFormat("ru-RU", {
       minimumFractionDigits: 2,
       maximumFractionDigits: 2,
     }).format(price);
   };
 
-  // Расчет общего количества товаров
-  const getTotalQuantity = () => {
-    return analysisResults.reduce((sum, item) => sum + item.quantity, 0);
-  };
-
   // Расчет общего количества найденных товаров
   const getTotalFoundQuantity = () => {
-    return analysisResults.reduce(
-      (sum, item) =>
-        sum +
-        item.bestSuppliers.reduce(
-          (supplierSum, supplier) => supplierSum + supplier.quantityTaken,
-          0,
-        ),
-      0,
-    );
+    return analysisResults.filter((item) => !item.requiresManualProcessing)
+      .length;
   };
 
   // Расчет общей стоимости
   const getTotalCost = () => {
-    return analysisResults.reduce((sum, item) => sum + item.totalPrice, 0);
+    return analysisResults.reduce(
+      (sum, item) => sum + (item.totalPrice || 0),
+      0,
+    );
+  };
+
+  // Получение количества товаров, требующих ручной обработки
+  const getManualProcessingCount = () => {
+    return analysisResults.filter((item) => item.requiresManualProcessing)
+      .length;
+  };
+
+  // Получение топ-3 поставщиков по количеству товаров
+  const getTopSuppliers = () => {
+    const supplierCounts: { [key: string]: number } = {};
+
+    // Считаем количество товаров для каждого поставщика
+    analysisResults.forEach((item) => {
+      if (item.supplierName && !item.requiresManualProcessing) {
+        supplierCounts[item.supplierName] =
+          (supplierCounts[item.supplierName] || 0) + 1;
+      }
+    });
+
+    // Сортируем поставщиков по количеству товаров (по убыванию)
+    const sortedSuppliers = Object.entries(supplierCounts)
+      .sort(([, countA], [, countB]) => countB - countA)
+      .slice(0, 3); // Берем топ-3
+
+    return sortedSuppliers;
   };
 
   return (
-    <div className="from-blue-25 h-screen w-screen bg-gradient-to-br to-white">
+    <div className="from-blue-25 min-h-screen w-screen bg-gradient-to-br to-white">
+      <Navbar setIsAuthModalOpen={setIsAuthModalOpen} />
+
       {/* Основной контент */}
       <div className="relative z-10 pt-24 pb-20">
         <div className="container mx-auto px-4 md:px-6">
@@ -409,12 +438,9 @@ function Home() {
               >
                 <div className="mb-6 flex items-center justify-between">
                   <div>
-                    <h3 className="text-2xl font-semibold text-blue-900">
+                    <h3 className="text-3xl font-semibold text-blue-900">
                       Результаты анализа
                     </h3>
-                    <p className="mt-1 text-blue-600">
-                      Найдены лучшие цены для ваших товаров
-                    </p>
                   </div>
                   <div className="mt-4 flex justify-end">
                     <Button
@@ -455,149 +481,70 @@ function Home() {
                   </div>
                 </div>
 
-                <div className="space-y-6">
-                  {analysisResults.map((result, index) => (
-                    <motion.div
-                      key={result.barcode}
-                      initial={{ opacity: 0, y: 10 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      transition={{ delay: index * 0.1 }}
-                      className="bg-blue-25 rounded-lg border border-blue-100 p-6"
-                    >
-                      {/* Основная информация о товаре */}
-                      <div className="mb-4 grid grid-cols-1 gap-4 md:grid-cols-4">
-                        <div>
-                          <h4 className="font-semibold text-blue-900">
-                            Штрих-код
-                          </h4>
-                          <p className="font-mono text-sm text-blue-700">
-                            {result.barcode}
-                          </p>
-                        </div>
-                        <div>
-                          <h4 className="font-semibold text-blue-900">Товар</h4>
-                          <p className="text-blue-700">{result.productName}</p>
-                        </div>
-                        <div>
-                          <h4 className="font-semibold text-blue-900">
-                            Запрошено
-                          </h4>
-                          <p className="text-blue-700">{result.quantity} шт</p>
-                        </div>
-                        <div>
-                          <h4 className="font-semibold text-blue-900">
-                            Общая стоимость
-                          </h4>
-                          <p className="text-lg font-bold text-blue-900">
-                            {formatPrice(result.totalPrice)} ₽
-                          </p>
-                        </div>
-                      </div>
-
-                      {/* Сообщение о статусе */}
-                      <div className="mb-4">
-                        <div
-                          className={`inline-flex items-center rounded-full px-3 py-1 text-sm font-medium ${
-                            result.requiresManualProcessing
-                              ? "border border-amber-200 bg-amber-100 text-amber-800"
-                              : "border border-green-200 bg-green-100 text-green-800"
-                          }`}
+                {/* Топ поставщиков */}
+                {getTopSuppliers().length > 0 && (
+                  <div className="mb-6">
+                    <h4 className="mb-4 text-lg font-semibold text-blue-900">
+                      Наиболее подходящие поставщики:
+                    </h4>
+                    <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
+                      {getTopSuppliers().map(([supplierName, count], index) => (
+                        <motion.div
+                          key={supplierName}
+                          initial={{ opacity: 0, y: 10 }}
+                          animate={{ opacity: 1, y: 0 }}
+                          transition={{ delay: index * 0.1 }}
+                          className="rounded-lg border border-blue-200 bg-blue-50 p-4 text-center"
                         >
-                          {result.requiresManualProcessing
-                            ? "Требует проверки"
-                            : "Автоматически"}
-                        </div>
-                        {result.message && (
-                          <p className="mt-2 text-sm text-blue-700">
-                            {result.message}
-                          </p>
-                        )}
-                      </div>
-
-                      {/* Таблица поставщиков */}
-                      {result.bestSuppliers.length > 0 && (
-                        <div>
-                          <h5 className="mb-3 font-semibold text-blue-900">
-                            Поставщики:
-                          </h5>
-                          <div className="overflow-x-auto rounded-lg border border-blue-100">
-                            <table className="w-full text-sm">
-                              <thead>
-                                <tr className="bg-blue-50">
-                                  <th className="px-3 py-2 text-left font-semibold text-blue-900">
-                                    Поставщик
-                                  </th>
-                                  <th className="px-3 py-2 text-right font-semibold text-blue-900">
-                                    Цена за единицу
-                                  </th>
-                                  <th className="px-3 py-2 text-right font-semibold text-blue-900">
-                                    Взято шт
-                                  </th>
-                                  <th className="px-3 py-2 text-right font-semibold text-blue-900">
-                                    Доступно шт
-                                  </th>
-                                  <th className="px-3 py-2 text-right font-semibold text-blue-900">
-                                    Стоимость
-                                  </th>
-                                </tr>
-                              </thead>
-                              <tbody>
-                                {result.bestSuppliers.map(
-                                  (supplier, supplierIndex) => (
-                                    <tr
-                                      key={supplierIndex}
-                                      className="border-b border-blue-100 last:border-b-0 hover:bg-blue-50"
-                                    >
-                                      <td className="px-3 py-2 text-blue-700">
-                                        {supplier.supplierName}
-                                      </td>
-                                      <td className="px-3 py-2 text-right font-medium text-blue-900">
-                                        {formatPrice(supplier.price)} ₽
-                                      </td>
-                                      <td className="px-3 py-2 text-right text-blue-700">
-                                        {supplier.quantityTaken} шт
-                                      </td>
-                                      <td className="px-3 py-2 text-right text-blue-700">
-                                        {supplier.supplierQuantity} шт
-                                      </td>
-                                      <td className="px-3 py-2 text-right font-semibold text-blue-900">
-                                        {formatPrice(
-                                          supplier.price *
-                                            supplier.quantityTaken,
-                                        )}{" "}
-                                        ₽
-                                      </td>
-                                    </tr>
-                                  ),
-                                )}
-                              </tbody>
-                            </table>
+                          <div className="mb-2 text-2xl font-bold text-blue-900">
+                            #{index + 1}
                           </div>
-                        </div>
-                      )}
-                    </motion.div>
-                  ))}
-                </div>
+                          <div className="text-lg font-semibold text-blue-800">
+                            {supplierName}
+                          </div>
+                          <div className="text-md text-blue-600">
+                            {count} товар
+                            {count === 1
+                              ? ""
+                              : count > 1 && count < 5
+                                ? "а"
+                                : "ов"}
+                          </div>
+                        </motion.div>
+                      ))}
+                    </div>
+                  </div>
+                )}
 
                 {/* Сводная информация */}
-                <div className="mt-6 grid grid-cols-1 gap-4 border-t border-blue-200 pt-6 sm:grid-cols-3">
-                  <div className="bg-blue-25 rounded-lg p-4 text-center">
+                <div className="mt-6 grid grid-cols-2 gap-4 border-t border-blue-200 pt-6 sm:grid-cols-4">
+                  <div className="rounded-lg bg-blue-100 p-4 text-center">
                     <div className="text-2xl font-bold text-blue-900">
-                      {getTotalQuantity()}
+                      {analysisResults.length}
                     </div>
-                    <div className="text-sm text-blue-600">Всего запрошено</div>
+                    <div className="text-md text-blue-600">Всего запрошено</div>
                   </div>
-                  <div className="bg-blue-25 rounded-lg p-4 text-center">
-                    <div className="text-2xl font-bold text-blue-900">
+                  <div className="rounded-lg bg-green-100 p-4 text-center">
+                    <div className="text-2xl font-bold text-green-900">
                       {getTotalFoundQuantity()}
                     </div>
-                    <div className="text-sm text-blue-600">Найдено товаров</div>
+                    <div className="text-md text-green-600">
+                      Найдено товаров
+                    </div>
                   </div>
-                  <div className="bg-blue-25 rounded-lg p-4 text-center">
+                  <div className="rounded-lg bg-amber-100 p-4 text-center">
+                    <div className="text-2xl font-bold text-amber-900">
+                      {getManualProcessingCount()}
+                    </div>
+                    <div className="text-md text-amber-600">
+                      Требуют проверки
+                    </div>
+                  </div>
+                  <div className="rounded-lg bg-blue-100 p-4 text-center">
                     <div className="text-2xl font-bold text-blue-900">
                       {formatPrice(getTotalCost())} ₽
                     </div>
-                    <div className="text-sm text-blue-600">Общая стоимость</div>
+                    <div className="text-md text-blue-600">Общая стоимость</div>
                   </div>
                 </div>
               </motion.div>
@@ -655,6 +602,10 @@ function Home() {
             )}
           </motion.div>
         </div>
+        <AuthModal
+          isOpen={isAuthModalOpen}
+          onClose={() => setIsAuthModalOpen(false)}
+        />
       </div>
       <Footer />
     </div>

@@ -1,4 +1,6 @@
+import type { MouseEvent, ReactNode } from "react";
 import { motion } from "framer-motion";
+
 const Button = ({
   children,
   primary = true,
@@ -7,10 +9,10 @@ const Button = ({
   disabled = false,
   ...rest
 }: {
-  children: React.ReactNode;
+  children: ReactNode;
   primary?: boolean;
   className?: string;
-  onClick?: () => void;
+  onClick?: (e: MouseEvent<HTMLButtonElement>) => void; // ← изменено
   disabled?: boolean;
 }) => (
   <motion.button
