@@ -180,18 +180,8 @@ function Admin() {
       const exportData = (request.fileContent ?? []).map(
         (item: FileContent) => {
           // Получаем штрихкод и количество из различных возможных полей
-          const barcode =
-            item.barcode ||
-            item.штрихкод ||
-            item.Штрихкод ||
-            item.barCode ||
-            "";
-          const quantity =
-            item.quantity ||
-            item.количество ||
-            item.Количество ||
-            item.qty ||
-            0;
+          const barcode = item.barcode || "";
+          const quantity = item.quantity || 0;
 
           // Возвращаем в требуемом формате
           return {
@@ -494,7 +484,7 @@ function Admin() {
                 <li>Формат: Excel (.xlsx, .xls)</li>
                 <li>
                   Должен содержать колонки: штрих-код, наименование товара,
-                  поставщик, цена, количество
+                  поставщик, цена
                 </li>
                 <li>Первая строка должна содержать заголовки колонок</li>
                 <li>Данные должны быть корректно отформатированы</li>
