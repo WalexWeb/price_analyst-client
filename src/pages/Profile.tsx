@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { motion, AnimatePresence } from "framer-motion";
+import { m, AnimatePresence } from "framer-motion";
 import axios from "axios";
 import Button from "./components/ui/Button";
 import SuccessIcon from "./components/ui/icons/SuccessIcon";
@@ -292,7 +292,7 @@ function Profile() {
     <div className="from-blue-25 min-h-screen w-screen bg-gradient-to-br to-white">
       {/* Основной контент */}
       <div className="container mx-auto px-4 py-8 md:px-6">
-        <motion.div
+        <m.div
           initial={{ opacity: 0, y: 30 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.7, delay: 0.2 }}
@@ -300,22 +300,22 @@ function Profile() {
         >
           {/* Заголовок */}
           <div className="mb-8 text-center">
-            <motion.h1
+            <m.h1
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.7, delay: 0.3 }}
               className="mb-4 text-4xl font-bold text-blue-900 md:text-5xl"
             >
               Личный кабинет
-            </motion.h1>
-            <motion.p
+            </m.h1>
+            <m.p
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.7, delay: 0.4 }}
               className="mb-6 text-lg text-blue-700 md:text-xl"
             >
               История ваших запросов на анализ цен
-            </motion.p>
+            </m.p>
             <div className="flex flex-col gap-4 sm:flex-row sm:justify-center">
               <Button onClick={() => navigate("/")}>
                 Перейти на главную страницу
@@ -325,7 +325,7 @@ function Profile() {
 
           {/* Сообщение о статусе */}
           {message && (
-            <motion.div
+            <m.div
               initial={{ opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}
               className={`mb-8 rounded-xl p-4 ${
@@ -340,11 +340,11 @@ function Profile() {
                 {messageSuccess === true ? <SuccessIcon /> : <ErrorIcon />}
                 <span className="ml-2 font-medium">{message}</span>
               </div>
-            </motion.div>
+            </m.div>
           )}
 
           {/* Секция истории запросов */}
-          <motion.div
+          <m.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5, delay: 0.6 }}
@@ -414,7 +414,7 @@ function Profile() {
                   const topSuppliers = getTopSuppliersWithInfo(request);
 
                   return (
-                    <motion.div
+                    <m.div
                       key={request.id}
                       initial={{ opacity: 0, y: 10 }}
                       animate={{ opacity: 1, y: 0 }}
@@ -518,7 +518,7 @@ function Profile() {
                       {/* Раскрывающееся содержимое */}
                       <AnimatePresence>
                         {isExpanded && (
-                          <motion.div
+                          <m.div
                             initial={{ height: 0, opacity: 0 }}
                             animate={{ height: "auto", opacity: 1 }}
                             exit={{ height: 0, opacity: 0 }}
@@ -544,7 +544,7 @@ function Profile() {
                                             supplierName,
                                           );
                                         return (
-                                          <motion.div
+                                          <m.div
                                             key={supplierName}
                                             initial={{ opacity: 0, y: 10 }}
                                             animate={{ opacity: 1, y: 0 }}
@@ -622,7 +622,7 @@ function Profile() {
                                                 )}
                                               </div>
                                             )}
-                                          </motion.div>
+                                          </m.div>
                                         );
                                       },
                                     )}
@@ -731,16 +731,16 @@ function Profile() {
                                 </table>
                               </div>
                             </div>
-                          </motion.div>
+                          </m.div>
                         )}
                       </AnimatePresence>
-                    </motion.div>
+                    </m.div>
                   );
                 })}
               </div>
             )}
-          </motion.div>
-        </motion.div>
+          </m.div>
+        </m.div>
       </div>
     </div>
   );

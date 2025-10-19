@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { motion, AnimatePresence } from "framer-motion";
+import { m, AnimatePresence } from "framer-motion";
 import axios from "axios";
 import Button from "./components/ui/Button";
 import FileIcon from "./components/ui/icons/FileIcon";
@@ -393,7 +393,7 @@ function Admin() {
     <div className="from-blue-25 min-h-screen w-screen bg-gradient-to-br to-white">
       {/* Основной контент */}
       <div className="container mx-auto px-4 py-8 md:px-6">
-        <motion.div
+        <m.div
           initial={{ opacity: 0, y: 30 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.7, delay: 0.2 }}
@@ -401,22 +401,22 @@ function Admin() {
         >
           {/* Заголовок */}
           <div className="mb-8 text-center">
-            <motion.h1
+            <m.h1
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.7, delay: 0.3 }}
               className="mb-4 text-4xl font-bold text-blue-900 md:text-5xl"
             >
               Панель администратора
-            </motion.h1>
-            <motion.p
+            </m.h1>
+            <m.p
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.7, delay: 0.4 }}
               className="mb-6 text-lg text-blue-700 md:text-xl"
             >
               Управление данными поставщиков и просмотр запросов пользователей
-            </motion.p>
+            </m.p>
             <div className="flex flex-col gap-4 sm:flex-row sm:justify-center">
               <Button onClick={() => navigate("/")}>
                 Перейти на главную страницу
@@ -425,7 +425,7 @@ function Admin() {
           </div>
 
           {/* Карточка загрузки данных */}
-          <motion.div
+          <m.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5, delay: 0.5 }}
@@ -525,7 +525,7 @@ function Admin() {
             </div>
 
             {selectedFile && (
-              <motion.div
+              <m.div
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
                 className="mb-4 rounded-lg border border-blue-200 bg-blue-50 p-3"
@@ -536,7 +536,7 @@ function Admin() {
                     Выбран файл: <strong>{selectedFile.name}</strong>
                   </span>
                 </p>
-              </motion.div>
+              </m.div>
             )}
 
             <Button
@@ -574,11 +574,11 @@ function Admin() {
                 </span>
               )}
             </Button>
-          </motion.div>
+          </m.div>
 
           {/* Сообщение о статусе */}
           {uploadMessage && (
-            <motion.div
+            <m.div
               initial={{ opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}
               className={`mb-8 rounded-xl p-4 ${
@@ -593,12 +593,12 @@ function Admin() {
                 {uploadSuccess === true ? <SuccessIcon /> : <ErrorIcon />}
                 <span className="ml-2 font-medium">{uploadMessage}</span>
               </div>
-            </motion.div>
+            </m.div>
           )}
 
           {/* Детальный ответ от сервера */}
           {uploadResponse && stats && (
-            <motion.div
+            <m.div
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.5, delay: 0.3 }}
@@ -639,11 +639,11 @@ function Admin() {
                   <div className="text-sm">Ошибок</div>
                 </div>
               </div>
-            </motion.div>
+            </m.div>
           )}
 
           {/* Секция запросов пользователей */}
-          <motion.div
+          <m.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5, delay: 0.6 }}
@@ -710,7 +710,7 @@ function Admin() {
                   const isCompanyExpanded = expandedCompany === companyId;
 
                   return (
-                    <motion.div
+                    <m.div
                       key={companyId}
                       initial={{ opacity: 0, y: 10 }}
                       animate={{ opacity: 1, y: 0 }}
@@ -748,7 +748,7 @@ function Admin() {
                       {/* Раскрывающееся содержимое компании */}
                       <AnimatePresence>
                         {isCompanyExpanded && (
-                          <motion.div
+                          <m.div
                             initial={{ height: 0, opacity: 0 }}
                             animate={{ height: "auto", opacity: 1 }}
                             exit={{ height: 0, opacity: 0 }}
@@ -766,7 +766,7 @@ function Admin() {
                                       downloadingRequest === requestId;
 
                                     return (
-                                      <motion.div
+                                      <m.div
                                         key={requestId}
                                         initial={{ opacity: 0, scale: 0.95 }}
                                         animate={{ opacity: 1, scale: 1 }}
@@ -842,7 +842,7 @@ function Admin() {
                                         {/* Раскрывающееся содержимое запроса */}
                                         <AnimatePresence>
                                           {isRequestExpanded && (
-                                            <motion.div
+                                            <m.div
                                               initial={{
                                                 height: 0,
                                                 opacity: 0,
@@ -927,25 +927,25 @@ function Admin() {
                                                   </div>
                                                 </div>
                                               </div>
-                                            </motion.div>
+                                            </m.div>
                                           )}
                                         </AnimatePresence>
-                                      </motion.div>
+                                      </m.div>
                                     );
                                   },
                                 )}
                               </div>
                             </div>
-                          </motion.div>
+                          </m.div>
                         )}
                       </AnimatePresence>
-                    </motion.div>
+                    </m.div>
                   );
                 })}
               </div>
             )}
-          </motion.div>
-        </motion.div>
+          </m.div>
+        </m.div>
       </div>
     </div>
   );
