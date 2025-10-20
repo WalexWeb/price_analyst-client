@@ -1,18 +1,18 @@
-import { useState } from "react";
-import { m } from "framer-motion";
+import { useEffect, useState, useRef } from "react";
+import { motion } from "framer-motion";
 import axios from "axios";
 import { useAuth } from "@/hooks/useAuth";
 import { useFileUpload } from "@/hooks/useFileUpload";
 import type { PriceAnalysisResult } from "@/types/analysis.type";
 import Navbar from "./components/layout/Navbar";
+import { HeroSection } from "./components/home/HeroSection";
 import { ActionCards } from "./components/home/ActionCards";
+import { StatusMessage } from "./components/ui/StatusMessage";
 import { AnalysisResults } from "./components/analysis/AnalysisResults";
+import { Instructions } from "./components/home/Instructions";
 import LoginModal from "./components/auth/LoginModal";
 import RegisterModal from "./components/auth/RegistrationModal";
 import Footer from "./components/layout/Footer";
-import { HeroSection } from "./components/home/HeroSection";
-import { Instructions } from "./components/home/Instructions";
-import { StatusMessage } from "./components/ui/StatusMessage";
 
 function Home() {
   const API_URL = import.meta.env.VITE_API_URL;
@@ -40,6 +40,9 @@ function Home() {
     validateAuth,
   } = useFileUpload();
 
+  // Ref для скролла к результатам
+  const resultsRef = useRef<HTMLDivElement>(null);
+
   const switchToRegister = () => {
     setIsLoginModalOpen(false);
     setIsRegisterModalOpen(true);
@@ -49,6 +52,26 @@ function Home() {
     setIsRegisterModalOpen(false);
     setIsLoginModalOpen(true);
   };
+
+  // Функция для скролла к результатам
+  const scrollToResults = () => {
+    if (resultsRef.current) {
+      resultsRef.current.scrollIntoView({
+        behavior: "smooth",
+        block: "start",
+      });
+    }
+  };
+
+  // Автоматический скролл при появлении результатов
+  useEffect(() => {
+    if (showResults && analysisResults.length > 0) {
+      // Небольшая задержка для гарантии рендера компонента
+      setTimeout(() => {
+        scrollToResults();
+      }, 100);
+    }
+  }, [showResults, analysisResults]);
 
   const downloadTemplate = async () => {
     setDownloadLoading(true);
@@ -103,7 +126,7 @@ function Home() {
           },
         },
       );
-
+      console.log(response.data);
       setUploadMessage("Анализ цен завершен успешно");
       setUploadSuccess(true);
 
@@ -195,7 +218,7 @@ function Home() {
 
       <div className="relative z-10 pt-24 pb-20">
         <div className="container mx-auto px-4 md:px-6">
-          <m.div
+          <motion.div
             initial={{ opacity: 0, y: 30 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.7, delay: 0.2 }}
@@ -216,16 +239,19 @@ function Home() {
               <StatusMessage message={uploadMessage} success={uploadSuccess} />
             )}
 
-            {showResults && analysisResults.length > 0 && (
-              <AnalysisResults
-                results={analysisResults}
-                onExport={exportResultsToExcel}
-                exportLoading={exportLoading}
-              />
-            )}
+            {/* Ref для скролла к результатам */}
+            <div ref={resultsRef}>
+              {showResults && analysisResults.length > 0 && (
+                <AnalysisResults
+                  results={analysisResults}
+                  onExport={exportResultsToExcel}
+                  exportLoading={exportLoading}
+                />
+              )}
+            </div>
 
             {!showResults && <Instructions />}
-          </m.div>
+          </motion.div>
         </div>
 
         <LoginModal

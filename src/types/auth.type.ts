@@ -1,6 +1,6 @@
 export interface User {
-  token: string;
-  role: "USER" | "ADMIN";
+  token?: string;
+  role?: "USER" | "ADMIN";
 }
 
 export interface LoginFormData {

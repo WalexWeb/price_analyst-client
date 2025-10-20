@@ -15,15 +15,18 @@ export const parseSupplierInfo = (
     let phone = "";
     let email = "";
 
+    // Проверка ИНН (10-12 цифр)
     if (parts.length > 1 && /^\d{10,12}$/.test(parts[1])) {
       inn = parts[1];
     }
 
+    // Поиск email
     const emailIndex = parts.findIndex((part) => part.includes("@"));
     if (emailIndex !== -1) {
       email = parts[emailIndex];
     }
 
+    // Поиск телефонов
     const phonePattern = /^[78]\s?\(\d{3}\)\s?\d{3}[- ]?\d{2}[- ]?\d{2}$/;
     const phones = parts.filter((part) => phonePattern.test(part));
 
@@ -38,6 +41,7 @@ export const parseSupplierInfo = (
       const firstPhoneIndex = parts.findIndex((part) =>
         phonePattern.test(part),
       );
+      // Ограничиваем адрес до первого телефона
       addressEndIndex = Math.min(addressEndIndex, firstPhoneIndex);
     }
 

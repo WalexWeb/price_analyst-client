@@ -1,5 +1,4 @@
 import { m } from "framer-motion";
-
 import Button from "../ui/Button";
 import ExportIcon from "../ui/icons/ExportIcon";
 import type { PriceAnalysisResult } from "@/types/analysis.type";
