@@ -11,7 +11,7 @@ export const StatusMessage = ({ message, success }: StatusMessageProps) => {
     <m.div
       initial={{ opacity: 0, y: 10 }}
       animate={{ opacity: 1, y: 0 }}
-      className={`mt-6 rounded-xl p-4 text-center ${
+      className={`mt-6 rounded-xl p-4 mb-4 text-center ${
         success === true
           ? "border border-green-200 bg-green-50 text-green-800"
           : success === false
