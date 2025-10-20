@@ -126,7 +126,6 @@ function Home() {
           },
         },
       );
-      console.log(response.data);
       setUploadMessage("Анализ цен завершен успешно");
       setUploadSuccess(true);
 

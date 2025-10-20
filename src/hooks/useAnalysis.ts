@@ -88,7 +88,7 @@ export const useAnalysis = (results: PriceAnalysisResult[]) => {
     supplierGroups: groupProductsBySupplier(),
     manualProcessingProducts: getManualProcessingProducts(),
     stats: getStats(),
-    topSuppliers: getTopSuppliers(),
+    topSuppliers: getTopSuppliers(3),
     getSupplierTotalPrice: (supplierName: string) => {
       return results
         .filter((item) => {

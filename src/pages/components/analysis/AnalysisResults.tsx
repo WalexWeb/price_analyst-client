@@ -96,18 +96,26 @@ export const AnalysisResults = ({
       )}
 
       {/* Товары по поставщикам */}
-      {supplierGroups.length > 0 && (
+      {topSuppliers.length > 0 && (
         <div className="mb-6">
           <h4 className="mb-4 text-lg font-semibold text-blue-900">
             Товары по поставщикам:
           </h4>
-          {supplierGroups.map((supplierGroup, index) => (
-            <ProductTable
-              key={supplierGroup.supplierName}
-              supplierGroup={supplierGroup}
-              index={index}
-            />
-          ))}
+          {topSuppliers.map(([supplierName], index) => {
+            const supplierGroup = supplierGroups.find(
+              (group) => group.supplierName === supplierName,
+            );
+
+            if (!supplierGroup) return null;
+
+            return (
+              <ProductTable
+                key={supplierName}
+                supplierGroup={supplierGroup}
+                index={index}
+              />
+            );
+          })}
         </div>
       )}
 
