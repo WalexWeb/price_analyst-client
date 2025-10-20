@@ -1,19 +1,10 @@
-interface RequestResponse {
-  barcode: string;
-  quantity: number;
-  productName: string | null;
-  supplierName: string | null;
-  unitPrice: number | null;
-  totalPrice: number | null;
-  requiresManualProcessing: boolean;
-  message: string;
-}
+import type { PriceAnalysisResult } from "@/types/analysis.type";
 
 interface UserRequest {
   id: number;
   timestamp: string;
   requestDetails: string;
-  responseDetails: RequestResponse[];
+  responseDetails: PriceAnalysisResult[];
 }
 
 interface RequestStatsProps {

@@ -1,34 +1,20 @@
 import { useState } from "react";
 import { m, AnimatePresence } from "framer-motion";
 import axios from "axios";
-
 import Button from "../ui/Button";
 import ChevronDownIcon from "../ui/icons/ChevronDownIcon";
 import ExportIcon from "../ui/icons/ExportIcon";
 import { LoadingSpinner } from "../ui/LoadingSpinner";
 import { RequestStats } from "./RequestStats";
 import { RequestDetails } from "./RequestDetails";
-
-interface User {
-  token?: string;
-}
-
-interface RequestResponse {
-  barcode: string;
-  quantity: number;
-  productName: string | null;
-  supplierName: string | null;
-  unitPrice: number | null;
-  totalPrice: number | null;
-  requiresManualProcessing: boolean;
-  message: string;
-}
+import type { User } from "@/types/auth.type";
+import type { PriceAnalysisResult } from "@/types/analysis.type";
 
 interface UserRequest {
   id: number;
   timestamp: string;
   requestDetails: string;
-  responseDetails: RequestResponse[];
+  responseDetails: PriceAnalysisResult[];
 }
 
 interface UserRequestItemProps {
@@ -76,7 +62,7 @@ export const UserRequestItem = ({
       }));
 
       const response = await axios.post(
-        `${API_URL}/data/export-analysis`,
+        `${API_URL}/data/export-detailed-analysis`,
         exportData,
         {
           responseType: "blob",

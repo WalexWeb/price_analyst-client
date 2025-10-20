@@ -1,22 +1,5 @@
+import type { UserRequest } from "@/types/analysis.type";
 import { parseSupplierInfo } from "@/utils/parsers";
-
-interface RequestResponse {
-  barcode: string;
-  quantity: number;
-  productName: string | null;
-  supplierName: string | null;
-  unitPrice: number | null;
-  totalPrice: number | null;
-  requiresManualProcessing: boolean;
-  message: string;
-}
-
-interface UserRequest {
-  id: number;
-  timestamp: string;
-  requestDetails: string;
-  responseDetails: RequestResponse[];
-}
 
 interface RequestResultsTableProps {
   request: UserRequest;

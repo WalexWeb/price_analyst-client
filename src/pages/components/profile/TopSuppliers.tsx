@@ -1,3 +1,4 @@
+import type { UserRequest } from "@/types/analysis.type";
 import { m } from "framer-motion";
 
 interface SupplierInfo {
@@ -6,24 +7,6 @@ interface SupplierInfo {
   address: string;
   phone: string;
   email: string;
-}
-
-interface RequestResponse {
-  barcode: string;
-  quantity: number;
-  productName: string | null;
-  supplierName: string | null;
-  unitPrice: number | null;
-  totalPrice: number | null;
-  requiresManualProcessing: boolean;
-  message: string;
-}
-
-interface UserRequest {
-  id: number;
-  timestamp: string;
-  requestDetails: string;
-  responseDetails: RequestResponse[];
 }
 
 // Функция для парсинга информации о поставщике из строки

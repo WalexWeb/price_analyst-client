@@ -5,27 +5,10 @@ import Button from "../ui/Button";
 import { LoadingSpinner } from "../ui/LoadingSpinner";
 import { UserRequestItem } from "./UserRequestsItem";
 import { EmptyState } from "../ui/EmptyState";
+import type { UserRequest } from "@/types/analysis.type";
 
 interface User {
   token?: string;
-}
-
-interface RequestResponse {
-  barcode: string;
-  quantity: number;
-  productName: string | null;
-  supplierName: string | null;
-  unitPrice: number | null;
-  totalPrice: number | null;
-  requiresManualProcessing: boolean;
-  message: string;
-}
-
-interface UserRequest {
-  id: number;
-  timestamp: string;
-  requestDetails: string;
-  responseDetails: RequestResponse[];
 }
 
 interface UserRequestsSectionProps {

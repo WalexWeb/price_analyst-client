@@ -169,7 +169,7 @@ function Home() {
     setExportLoading(true);
     try {
       const response = await axios.post(
-        `${API_URL}/data/export-analysis`,
+        `${API_URL}/data/export-detailed-analysis`,
         analysisResults,
         {
           responseType: "blob",
@@ -205,6 +205,110 @@ function Home() {
       }
     } finally {
       setExportLoading(false);
+    }
+  };
+
+  // В функции Home добавьте новую функцию для выгрузки поставщика
+  const exportSupplierToExcel = async (supplierName: string) => {
+    if (analysisResults.length === 0) {
+      setUploadMessage("Нет данных для выгрузки");
+      setUploadSuccess(false);
+      return;
+    }
+
+    if (!validateAuth()) {
+      setIsRegisterModalOpen(true);
+      return;
+    }
+
+    try {
+      // Извлекаем чистое имя поставщика из форматированного названия
+      const extractSupplierName = (fullMessage: string) => {
+        // Берем часть до первой запятой - это должно быть имя поставщика
+        const match = fullMessage.match(/^([^,]+)/);
+        return match ? match[1].trim() : fullMessage;
+      };
+
+      // Получаем чистое имя поставщика для поиска
+      const cleanSupplierName = extractSupplierName(supplierName);
+
+      // Фильтруем результаты, где supplierName содержит чистое имя поставщика
+      const supplierProducts = analysisResults
+        .filter((result) => {
+          if (!result.supplierName) return false;
+          const resultCleanName = extractSupplierName(result.supplierName);
+          return resultCleanName === cleanSupplierName;
+        })
+        .map((result) => {
+          // Функция для преобразования цены в число с точкой
+          const parsePrice = (price: any): number => {
+            if (price === null || price === undefined) return 0;
+            if (typeof price === "number") return price;
+            if (typeof price === "string") {
+              const cleanedPrice = price.replace(/,/g, ".").replace(/\s/g, "");
+              return parseFloat(cleanedPrice) || 0;
+            }
+            return 0;
+          };
+
+          return {
+            barcode: result.barcode || "",
+            productName: result.productName || "",
+            quantity: result.quantity || 0,
+            unitPrice: parsePrice(result.unitPrice),
+            totalPrice: parsePrice(result.totalPrice),
+          };
+        });
+
+      if (supplierProducts.length === 0) {
+        setUploadMessage(`Нет данных для поставщика "${cleanSupplierName}"`);
+        setUploadSuccess(false);
+        return;
+      }
+
+      const response = await axios.post(
+        `${API_URL}/data/export-invoice`,
+        supplierProducts,
+        {
+          responseType: "blob",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${user!.token}`,
+          },
+        },
+      );
+
+      const safeSupplierName = cleanSupplierName
+        .replace(/[^a-zA-Z0-9а-яА-ЯёЁ\s_-]/g, "")
+        .trim();
+      const fileName = `товары_${safeSupplierName}.xlsx`;
+
+      const url = window.URL.createObjectURL(new Blob([response.data]));
+      const link = document.createElement("a");
+      link.href = url;
+      link.setAttribute("download", fileName);
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+
+      setUploadMessage(
+        `Товары поставщика "${cleanSupplierName}" выгружены в Excel`,
+      );
+      setUploadSuccess(true);
+    } catch (error: any) {
+      console.error("Ошибка выгрузки поставщика:", error);
+
+      if (error.response?.status === 401) {
+        setUploadMessage("Для выгрузки необходимо зарегистрироваться");
+        setUploadSuccess(false);
+        setIsRegisterModalOpen(true);
+      } else if (error.response?.status === 400) {
+        setUploadMessage("Ошибка в формате данных для выгрузки");
+        setUploadSuccess(false);
+      } else {
+        setUploadMessage("Ошибка при выгрузке данных поставщика");
+        setUploadSuccess(false);
+      }
     }
   };
 
@@ -244,6 +348,7 @@ function Home() {
                 <AnalysisResults
                   results={analysisResults}
                   onExport={exportResultsToExcel}
+                  onExportSupplier={exportSupplierToExcel}
                   exportLoading={exportLoading}
                 />
               )}

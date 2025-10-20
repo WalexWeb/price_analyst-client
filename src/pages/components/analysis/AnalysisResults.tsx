@@ -6,16 +6,19 @@ import { useAnalysis } from "@/hooks/useAnalysis";
 import { SupplierCard } from "./SupplierCard";
 import { ProductTable } from "./ProductTable";
 import { StatsCards } from "./StatsCards";
+import { useState } from "react";
 
 interface AnalysisResultsProps {
   results: PriceAnalysisResult[];
   onExport: () => void;
+  onExportSupplier: (supplierName: string) => Promise<void>;
   exportLoading: boolean;
 }
 
 export const AnalysisResults = ({
   results,
   onExport,
+  onExportSupplier,
   exportLoading,
 }: AnalysisResultsProps) => {
   const {
@@ -25,6 +28,19 @@ export const AnalysisResults = ({
     topSuppliers,
     getSupplierTotalPrice,
   } = useAnalysis(results);
+
+  const [currentExportingSupplier, setCurrentExportingSupplier] = useState<
+    string | null
+  >(null);
+
+  const handleExportSupplier = async (supplierName: string) => {
+    setCurrentExportingSupplier(supplierName);
+    try {
+      await onExportSupplier(supplierName);
+    } finally {
+      setCurrentExportingSupplier(null);
+    }
+  };
 
   return (
     <m.div
@@ -68,7 +84,7 @@ export const AnalysisResults = ({
           ) : (
             <span className="flex items-center">
               <ExportIcon />
-              <span>Выгрузить в Excel</span>
+              <span>Выгрузить все в Excel</span>
             </span>
           )}
         </Button>
@@ -113,6 +129,9 @@ export const AnalysisResults = ({
                 key={supplierName}
                 supplierGroup={supplierGroup}
                 index={index}
+                onExportSupplier={handleExportSupplier}
+                exportLoading={exportLoading}
+                currentExportingSupplier={currentExportingSupplier}
               />
             );
           })}

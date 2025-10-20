@@ -31,3 +31,10 @@ export interface AnalysisStats {
   manualProcessingCount: number;
   totalCost: number;
 }
+
+export interface UserRequest {
+  id: number;
+  timestamp: string;
+  requestDetails: string;
+  responseDetails: PriceAnalysisResult[];
+}
