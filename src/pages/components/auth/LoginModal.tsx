@@ -2,7 +2,7 @@ import { useState } from "react";
 import { useForm } from "react-hook-form";
 import axios from "axios";
 import { useAuth } from "@/hooks/useAuth";
-import type { LoginFormData } from "@/types/auth.type";
+import type { LoginFormData, AuthResponse } from "@/types/auth.type";
 import { validatePhone, validatePassword } from "@/utils/validators";
 import { Modal } from "../ui/Modal";
 import Button from "../ui/Button";
@@ -36,10 +36,15 @@ export const LoginModal = ({
     setError("");
 
     try {
-      const response = await axios.post(`${API_URL}/auth/login`, data);
-      const { token, role } = response.data;
+      const response = await axios.post<AuthResponse>(`${API_URL}/auth/login`, data);
+      const { accessToken, refreshToken, role, expiresIn } = response.data;
 
-      login({ token, role });
+      login({
+        accessToken,
+        refreshToken,
+        role,
+        tokenExpiresIn: expiresIn,
+      });
       handleClose();
     } catch (error: any) {
       setError(error.response?.data?.message || "Ошибка входа");

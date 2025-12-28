@@ -12,7 +12,7 @@ const ContactFloatButton = () => {
 
   const phoneNumber = "8(909) 980-01-88";
   const email = "sale@supplyx.ru";
-  const telegram = "t.me/Supprice_bot";
+  const telegram = "t.me/Supp_supplyX";
 
   const handleTelegramClick = () => {
     window.open(`https://${telegram}`, "_blank");
